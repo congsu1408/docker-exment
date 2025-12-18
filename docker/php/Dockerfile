@@ -7,6 +7,31 @@ RUN apt-get update && apt-get install -y git wget gnupg vim unzip libxml2-dev li
   && docker-php-ext-install mbstring dom gd zip pdo_mysql ftp ldap\
   && apt-get clean
 
+# Some environments enforce SSL for MySQL client tools via global defaults,
+# while the target DB server (especially MariaDB in CI) may not support SSL.
+# Provide wrappers that disable ssl-mode only when the client supports it.
+RUN set -eu; \
+  cat > /usr/local/bin/mysql <<'EOF'\
+#!/bin/sh\
+set -eu\
+REAL=/usr/bin/mysql\
+if "$REAL" --help 2>/dev/null | grep -q -- '--ssl-mode'; then\
+  exec "$REAL" --ssl-mode=DISABLED "$@"\
+fi\
+exec "$REAL" "$@"\
+EOF\
+  ; chmod +x /usr/local/bin/mysql; \
+  cat > /usr/local/bin/mysqldump <<'EOF'\
+#!/bin/sh\
+set -eu\
+REAL=/usr/bin/mysqldump\
+if "$REAL" --help 2>/dev/null | grep -q -- '--ssl-mode'; then\
+  exec "$REAL" --ssl-mode=DISABLED "$@"\
+fi\
+exec "$REAL" "$@"\
+EOF\
+  ; chmod +x /usr/local/bin/mysqldump
+
 # install pre sql server driver
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
   && curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | tee /etc/apt/sources.list.d/msprod.list \
