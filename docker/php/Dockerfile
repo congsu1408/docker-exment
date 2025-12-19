@@ -7,6 +7,11 @@ RUN apt-get update && apt-get install -y git wget gnupg vim unzip libxml2-dev li
   && docker-php-ext-install mbstring dom gd zip pdo_mysql ftp ldap\
   && apt-get clean
 
+# Git 2.35+ blocks repos with mismatched ownership (common in CI volume mounts).
+# Mark the mounted project directories as safe for all users.
+RUN git config --system --add safe.directory /var/www/exment \
+  && git config --system --add safe.directory /var/www/exment/exment
+
 # mysql/mysqldump: default to non-SSL in CI where server doesn't support TLS.
 # If the caller already specifies any SSL option, do not override it.
 RUN set -eu; \
