@@ -48,5 +48,9 @@ sqlsrv-init:
 	docker compose -f docker-compose.yml exec -T php chown www-data:www-data -R .
 	docker compose -f docker-compose.yml exec -T -e COMPOSER_PROCESS_TIMEOUT=600 php composer install
 	docker compose -f docker-compose.yml exec -T php cp .env.sqlsrv .env
+	# ODBC Driver 18+ verifies cert by default; trust self-signed cert for CI/dev.
+	# These env names match Laravel 10's default sqlsrv config keys.
+	docker compose -f docker-compose.yml exec -T php bash -lc 'grep -q "^DB_ENCRYPT=" .env || echo "DB_ENCRYPT=false" >> .env'
+	docker compose -f docker-compose.yml exec -T php bash -lc 'grep -q "^DB_TRUST_SERVER_CERTIFICATE=" .env || echo "DB_TRUST_SERVER_CERTIFICATE=true" >> .env'
 	docker compose -f docker-compose.yml exec -T php php artisan key:generate
 	docker compose -f docker-compose.yml exec -T php php artisan passport:key --force
