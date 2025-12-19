@@ -7,6 +7,36 @@ RUN apt-get update && apt-get install -y git wget gnupg vim unzip libxml2-dev li
   && docker-php-ext-install mbstring dom gd zip pdo_mysql ftp ldap\
   && apt-get clean
 
+# mysql/mysqldump: default to non-SSL in CI where server doesn't support TLS.
+# If the caller already specifies any SSL option, do not override it.
+RUN set -eu; \
+  for tool in mysql mysqldump; do \
+    printf '%s\n' \
+      '#!/usr/bin/env sh' \
+      'set -eu' \
+      '' \
+      'tool_name="$(basename "$0")"' \
+      '' \
+      '# Bypass /usr/local/bin (this wrapper) when resolving the real binary.' \
+      'real="$(PATH=/usr/bin:/bin command -v "$tool_name" || true)"' \
+      'if [ -z "$real" ]; then real="/usr/bin/$tool_name"; fi' \
+      '' \
+      'has_ssl=0' \
+      'for arg in "$@"; do' \
+      '  case "$arg" in' \
+      '    --ssl-mode|--ssl-mode=*|--ssl|--ssl-*) has_ssl=1 ;;' \
+      '  esac' \
+      'done' \
+      '' \
+      'if [ "$has_ssl" -eq 0 ]; then' \
+      '  exec "$real" --ssl-mode=DISABLED "$@"' \
+      'else' \
+      '  exec "$real" "$@"' \
+      'fi' \
+      > "/usr/local/bin/$tool"; \
+    chmod +x "/usr/local/bin/$tool"; \
+  done
+
 # install pre sql server driver
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
   && curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | tee /etc/apt/sources.list.d/msprod.list \
