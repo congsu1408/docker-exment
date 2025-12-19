@@ -16,7 +16,7 @@ services:
   sqlsrv-create-db:
     image: tsgkadot/mssql-tools
     command: |
-      /home/wait-for-it.sh sqlsrv:1433 --timeout=30 --strict -- sqlcmd -S sqlsrv -U sa -P ${EXMENT_DOCKER_SQLSRV_ROOT_PASSWORD} -Q "CREATE DATABASE ${EXMENT_DOCKER_SQLSRV_DATABASE} COLLATE Japanese_CI_AS"
+      /home/wait-for-it.sh sqlsrv:1433 --timeout=30 --strict -- sqlcmd -C -S sqlsrv -U sa -P ${EXMENT_DOCKER_SQLSRV_ROOT_PASSWORD} -Q "CREATE DATABASE ${EXMENT_DOCKER_SQLSRV_DATABASE} COLLATE Japanese_CI_AS"
     volumes:
       - ./docker/mssql-tools:/home
     networks:
