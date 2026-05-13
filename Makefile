@@ -42,7 +42,7 @@ sqlsrv-init:
 	@make ps
 	@make logs
 	sleep 30
-	docker compose -f docker-compose.sqlsrv.yml run -T sqlsrv-create-db
+	docker compose -f docker-compose.yml -f docker-compose.sqlsrv.yml run -T sqlsrv-create-db
 	@make ps
 	@make logs
 	docker compose -f docker-compose.yml exec -T php bash -c "find . -path '*/.git' -prune -o -print0 | xargs -0 chown www-data:www-data"

@@ -1,6 +1,6 @@
 services:
   sqlsrv:
-    build: docker/sqlsrv
+    build: docker/sqlsrv2022
     ports:
       - ${EXMENT_DOCKER_SQLSRV_PORT-1433}:1433
     networks:
@@ -14,14 +14,14 @@ services:
       # - SQLSRV_LCID: 1041
 
   sqlsrv-create-db:
-    image: tsgkadot/mssql-tools
-    command: |
-      /home/wait-for-it.sh sqlsrv:1433 --timeout=30 --strict -- sqlcmd -S sqlsrv -U sa -P ${EXMENT_DOCKER_SQLSRV_ROOT_PASSWORD} -Q "CREATE DATABASE ${EXMENT_DOCKER_SQLSRV_DATABASE} COLLATE Japanese_CI_AS"
-    volumes:
-      - ./docker/mssql-tools:/home
+    image: mcr.microsoft.com/mssql-tools:latest
+    command: >
+      /opt/mssql-tools/bin/sqlcmd -S sqlsrv -U sa -P ${EXMENT_DOCKER_SQLSRV_ROOT_PASSWORD} -Q "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = '${EXMENT_DOCKER_SQLSRV_DATABASE}') CREATE DATABASE ${EXMENT_DOCKER_SQLSRV_DATABASE} COLLATE Japanese_CI_AS"
     networks:
       - exment-network
     env_file: .env
+    depends_on:
+      - sqlsrv
 
 networks:
   exment-network:
