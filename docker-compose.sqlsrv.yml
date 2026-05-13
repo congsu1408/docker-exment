@@ -11,7 +11,7 @@ services:
       SA_PASSWORD: ${EXMENT_DOCKER_SQLSRV_ROOT_PASSWORD}
       MSSQL_PID: ${EXMENT_DOCKER_SQLSRV_PID-Express}
       SQLSRV_COLLATION: Japanese_CI_AS
-      # - SQLSRV_LCID: 1041
+      # SQLSRV_LCID: 1041
 
   sqlsrv-create-db:
     image: mcr.microsoft.com/mssql-tools:latest

@@ -7,7 +7,7 @@ services:
     depends_on:
       - web
     volumes:
-      - .docker/https-portal/volumes/default.ssl.conf.erb:/var/lib/nginx-conf/${EXMENT_DOCKER_FRONT_DOMAIN-localhost}.conf.erb:ro
+      - ./docker/https-portal/volumes/default.ssl.conf.erb:/var/lib/nginx-conf/${EXMENT_DOCKER_FRONT_DOMAIN-localhost}.conf.erb:ro
     environment:
       STAGE: ${EXMENT_DOCKER_HTTPS_STAGE-staging}
       DOMAINS: '${EXMENT_DOCKER_FRONT_DOMAIN-localhost} -> ${EXMENT_DOCKER_HTTPS_TARGET_URL-http://web:80}'

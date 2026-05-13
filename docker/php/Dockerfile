@@ -20,5 +20,4 @@ RUN pecl install sqlsrv-5.12.0 && pecl install pdo_sqlsrv-5.12.0 && docker-php-e
 # install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-COPY .env /var/www/exment/.env
 WORKDIR /var/www/exment
